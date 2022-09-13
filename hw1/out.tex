@@ -1,0 +1,181 @@
+\documentclass[12pt,a4paper]{article}
+
+\title{作業一：資訊隱藏}
+\author{學號：C24106082\\
+姓名：陳宏彰}
+\date{2022-09-13}
+
+\usepackage{amsmath} 
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{array}   % for \newcolumntype macro
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l" column type
+\newcolumntype{C}{>{$}c<{$}} % math-mode version of "l" column type
+\newcolumntype{R}{>{$}r<{$}} % math-mode version of "l" column type
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{gensymb}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+\usepackage{listings}
+
+\usepackage[CJKmath=true,AutoFakeBold=3,AutoFakeSlant=.2]{xeCJK} 
+\newCJKfontfamily\Kai{[jf-openhuninn-1.1.ttf]}       
+\newCJKfontfamily\Hei{[jf-openhuninn-1.1.ttf]}   
+\newCJKfontfamily\NewMing{[jf-openhuninn-1.1.ttf]} 
+
+\usepackage{fontspec}
+\setmainfont{[jf-openhuninn-1.1.ttf]}
+\setmonofont{[jf-openhuninn-1.1.ttf]}
+\XeTeXlinebreaklocale "zh"
+
+\newcommand{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+
+\begin{document}
+\maketitle  
+
+\section{原理}
+\subsection{藏入}
+輸入 secret 和 carriers，secret 指要隱藏的字串，只能包含 ASCII，carriers 是一串用空白分隔的字串。
+
+\begin{enumerate}
+    \item 將 secret 按照 ascii code 和 spaceMap 編碼成兩個空白，獲得一串空白字元 secretSpace.
+    \item 將 carriers 用空白切成一串 []string，稱為 carrierList
+    \item 依序將一個 carrier、一個空白串起來，直到 secretSpace 用完，在結尾在插入最後一個 carrier，如果 carrier 不夠用，則從頭開開始
+\end{enumerate}
+    
+\subsection{取出}
+取出所有空白字元，根據 spaceMap 解碼，就獲得原本的 secret 了
+
+\section{使用範例}
+\subsection{隱藏}
+\begin{lstlisting}
+$ go run . hide > t
+Enter what you want to hide, only ascii availabe: ncku infor
+mation security
+Enter the carrier text: sdf jdfk fsdkl ruei cnxzm
+\end{lstlisting}
+
+\subsection{取出}
+\begin{lstlisting}
+$ cat t | go run . extract
+ncku information security%
+\end{lstlisting}
+
+\subsection{t 內容}
+\begin{lstlisting}
+0000: 7364 66e2 8084 6a64 666b e281 9f66 7364  sdf...jdfk...fsd
+0010: 6b6c e280 8472 7565 69e2 8081 636e 787a  kl...ruei...cnxz
+0020: 6de2 8084 7364 66e2 8089 6a64 666b e280  m...sdf...jdfk..
+0030: 8566 7364 6b6c e280 8372 7565 69e2 8080  .fsdkl...ruei...
+0040: 636e 787a 6d20 7364 66e2 8084 6a64 666b  cnxzm sdf...jdfk
+0050: e280 8766 7364 6b6c e280 8472 7565 69e2  ...fsdkl...ruei.
+0060: 819f 636e 787a 6de2 8084 7364 66e2 8084  ..cnxzm...sdf...
+0070: 6a64 666b e280 8466 7364 6b6c e380 8072  jdfk...fsdkl...r
+0080: 7565 69e2 8085 636e 787a 6de2 8080 7364  uei...cnxzm...sd
+0090: 66e2 8084 6a64 666b e280 af66 7364 6b6c  f...jdfk...fsdkl
+00a0: e280 8472 7565 69c2 a063 6e78 7a6d e280  ...ruei..cnxzm..
+00b0: 8573 6466 e280 826a 6466 6be2 8084 6673  .sdf...jdfk...fs
+00c0: 646b 6ce2 8087 7275 6569 e280 8463 6e78  dkl...ruei...cnx
+00d0: 7a6d e380 8073 6466 e280 846a 6466 6be2  zm...sdf...jdfk.
+00e0: 819f 6673 646b 6ce2 8080 7275 6569 2063  ..fsdkl...ruei c
+00f0: 6e78 7a6d e280 8573 6466 e280 816a 6466  nxzm...sdf...jdf
+0100: 6be2 8084 6673 646b 6ce2 8083 7275 6569  k...fsdkl...ruei
+0110: e280 8463 6e78 7a6d e280 8173 6466 e280  ...cnxzm...sdf..
+0120: 856a 6466 6be2 8083 6673 646b 6ce2 8085  .jdfk...fsdkl...
+0130: 7275 6569 e280 8063 6e78 7a6d e280 8473  ruei...cnxzm...s
+0140: 6466 e280 876a 6466 6be2 8085 6673 646b  df...jdfk...fsdk
+0150: 6ce2 8082 7275 6569 e280 8563 6e78 7a6d  l...ruei...cnxzm
+0160: e280 8773 6466 0a                        ...sdf.
+\end{lstlisting}
+sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl　ruei cnxzm sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl ruei cnxzm　sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl ruei cnxzm sdf jdfk fsdkl ruei cnxzm sdf
+
+\section{程式碼}
+完整程式碼在 \url{https://github.com/simbafs/NCKU-IS-HW1}，以下僅擷取部份
+\subsection{隱藏}
+\begin{lstlisting}
+// input
+// secret
+reader := bufio.NewReader(os.Stdin)
+fmt.Fprintf(os.Stderr,
+"Enter what you want to hide, only ascii availabe: ")
+secret, err := reader.ReadString('\n')
+if err != nil {
+	fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	return
+}
+// carrier
+secret = strings.TrimRight(secret, "\n")
+fmt.Fprintf(os.Stderr, "Enter the carrier text: ")
+carrier, err := reader.ReadString('\n')
+if err != nil {
+	fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	return
+}
+carrier = strings.TrimRight(carrier, "\n")
+// split and remove space
+carrierListN := strings.Split(carrier, " ")
+carrierList := []string{}
+index := 0 // index to carrierList
+getCarrier := func() string {
+	s := carrierList[index]
+	index = (index + 1) % len(carrierList)
+	return s
+}
+for _, s := range carrierListN {
+	if s != "" {
+		carrierList = append(carrierList, 
+		strings.Trim(s, " "))
+	}
+}
+	// hide
+for _, c := range []rune(secret) {
+	if c > unicode.MaxASCII {
+		fmt.Fprintf(os.Stderr,
+		"error: only ascii availabe\n")
+		return
+	}
+	firstSpace := SpaceMap[c/16]
+	secondSpace := SpaceMap[c%16]
+	fmt.Printf("%s%c%s%c", 
+	getCarrier(), firstSpace, getCarrier(), secondSpace)
+}
+fmt.Printf("%s\n", getCarrier())
+\end{lstlisting}
+
+\subsection{取出}
+\begin{lstlisting}
+reader := bufio.NewReader(os.Stdin)
+text, err := reader.ReadString('\n')
+if err != nil {
+	fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	return
+}
+	isFirst := true
+char := '\000'
+for _, c := range []rune(text) {
+	if index, ok := spaceMapReverse[c]; ok {
+		if isFirst {
+			char = rune(index * 16)
+			isFirst = false
+		} else {
+			char += rune(index)
+			fmt.Printf("%c", char)
+			isFirst = true
+		}
+	}
+}
+\end{lstlisting}
+
+\end{document}
