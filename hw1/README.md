@@ -9,3 +9,14 @@ NCKU Information Security HW1
 3. 依序將一個 `carrier`、一個空白串起來，直到 `secretSpace` 用完，在結尾在插入最後一個 `carrier`，如果 `carrier` 不夠用，則從頭開開始
 ## 取出
 取出所有空白字元，根據 `spaceMap` 解碼，就獲得原本的 `secret` 了
+
+# usage
+## 隱藏
+```
+$ go run . hide > t
+```
+然後輸入 `secret` 和 `carriers`
+## 取出
+```
+$ cat t | go run .
+```
