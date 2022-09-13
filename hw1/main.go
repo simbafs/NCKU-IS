@@ -81,7 +81,7 @@ func Hide() {
 		secondSpace := SpaceMap[c%16]
 		fmt.Printf("%s%c%s%c", getCarrier(), firstSpace, getCarrier(), secondSpace)
 	}
-	fmt.Printf(getCarrier())
+	fmt.Printf("%s\n", getCarrier())
 }
 
 func Extract() {
