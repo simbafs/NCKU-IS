@@ -8,7 +8,7 @@ import (
 	"unicode"
 )
 
-var spaceMap = []rune{
+var SpaceMap = []rune{
 	'\u0020',
 	'\u00a0',
 	'\u2000',
@@ -30,12 +30,15 @@ var spaceMap = []rune{
 var spaceMapReverse = map[rune]int{}
 
 func init() {
-	for i, c := range spaceMap {
+	// build reverse map from spaceMap
+	for i, c := range SpaceMap {
 		spaceMapReverse[c] = i
 	}
 }
 
-func hide() {
+func Hide() {
+	// input
+	// secret
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Fprintf(os.Stderr, "Enter what you want to hide, only ascii availabe: ")
 	secret, err := reader.ReadString('\n')
@@ -43,6 +46,7 @@ func hide() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		return
 	}
+	// carrier
 	secret = strings.TrimRight(secret, "\n")
 	fmt.Fprintf(os.Stderr, "Enter the carrier text: ")
 	carrier, err := reader.ReadString('\n')
@@ -52,28 +56,35 @@ func hide() {
 	}
 	carrier = strings.TrimRight(carrier, "\n")
 
-	secretSpace := ""
+	// split and remove space
+	carrierListN := strings.Split(carrier, " ")
+	carrierList := []string{}
+	index := 0 // index to carrierList
+	getCarrier := func() string {
+		s := carrierList[index]
+		index = (index + 1) % len(carrierList)
+		return s
+	}
+	for _, s := range carrierListN {
+		if s != "" {
+			carrierList = append(carrierList, strings.Trim(s, " "))
+		}
+	}
+
+	// hide
 	for _, c := range []rune(secret) {
 		if c > unicode.MaxASCII {
 			fmt.Fprintf(os.Stderr, "error: only ascii availabe\n")
 			return
 		}
-		firstSpace := spaceMap[c/16]
-		secondSpace := spaceMap[c%16]
-		secretSpace = fmt.Sprintf("%s%c%c", secretSpace, firstSpace, secondSpace)
+		firstSpace := SpaceMap[c/16]
+		secondSpace := SpaceMap[c%16]
+		fmt.Printf("%s%c%s%c", getCarrier(), firstSpace, getCarrier(), secondSpace)
 	}
-
-	carrierList := strings.Split(carrier, " ")
-	index := 0 // index to carrierList
-
-	for _, c := range []rune(secretSpace) {
-		fmt.Printf("%s%c", carrierList[index], c)
-		index = (index + 1) % len(carrierList)
-	}
-	fmt.Println(carrierList[index])
+	fmt.Printf(getCarrier())
 }
 
-func extract() {
+func Extract() {
 	reader := bufio.NewReader(os.Stdin)
 	text, err := reader.ReadString('\n')
 	if err != nil {
@@ -81,39 +92,38 @@ func extract() {
 		return
 	}
 
-	// decode space to int
-	secretSpace := []rune{}
+	isFirst := true
+	char := '\000'
 	for _, c := range []rune(text) {
-		if !unicode.IsSpace(c) {
-			continue
-		}
 		if index, ok := spaceMapReverse[c]; ok {
-			secretSpace = append(secretSpace, rune(index))
+			if isFirst {
+				char = rune(index * 16)
+				isFirst = false
+			} else {
+				char += rune(index)
+				fmt.Printf("%c", char)
+				isFirst = true
+			}
 		}
-	}
-
-	// TODO: merge two for loop
-	for i := 0; i < len(secretSpace); i += 2 {
-		fmt.Printf("%c", secretSpace[i]*16+secretSpace[i+1])
 	}
 }
 
-func help() {
+func Help() {
 	fmt.Println("hide: hide the secret in the carrier text")
 	fmt.Println("extract: extract the secret from the carrier text")
 }
 
 func main() {
 	subCMD := map[string]func(){
-		"hide":    hide,
-		"extract": extract,
-		"help":    help,
+		"hide":    Hide,
+		"extract": Extract,
+		"help":    Help,
 	}
 	if len(os.Args) < 2 {
-		help()
+		Help()
 	} else if f, ok := subCMD[os.Args[1]]; ok {
 		f()
 	} else {
-		help()
+		Help()
 	}
 }
