@@ -27,6 +27,14 @@ var spaceMap = []rune{
 	'\u3000',
 }
 
+var spaceMapReverse = map[rune]int{}
+
+func init() {
+	for i, c := range spaceMap {
+		spaceMapReverse[c] = i
+	}
+}
+
 func hide() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Fprintf(os.Stderr, "Enter what you want to hide, only ascii availabe: ")
@@ -62,7 +70,7 @@ func hide() {
 		fmt.Printf("%s%c", carrierList[index], c)
 		index = (index + 1) % len(carrierList)
 	}
-	fmt.Printf(carrierList[index])
+	fmt.Println(carrierList[index])
 }
 
 func extract() {
@@ -73,32 +81,39 @@ func extract() {
 		return
 	}
 
-	secretSpace := ""
+	// decode space to int
+	secretSpace := []rune{}
 	for _, c := range []rune(text) {
-		if unicode.IsSpace(c) {
-			secretSpace = fmt.Sprintf("%s%c", secretSpace, c)
+		if !unicode.IsSpace(c) {
+			continue
+		}
+		if index, ok := spaceMapReverse[c]; ok {
+			secretSpace = append(secretSpace, rune(index))
 		}
 	}
-	secret := ""
+
+	// TODO: merge two for loop
 	for i := 0; i < len(secretSpace); i += 2 {
-		firstSpace := rune(secretSpace[i])
-		secondSpace := rune(secretSpace[i+1])
-		firstIndex := 0
-		secondIndex := 0
-		for i, c := range spaceMap {
-			if c == firstSpace {
-				firstIndex = i
-			}
-			if c == secondSpace {
-				secondIndex = i
-			}
-		}
-		secret = fmt.Sprintf("%s%c", secret, firstIndex*16+secondIndex)
+		fmt.Printf("%c", secretSpace[i]*16+secretSpace[i+1])
 	}
-	fmt.Printf(secret)
+}
+
+func help() {
+	fmt.Println("hide: hide the secret in the carrier text")
+	fmt.Println("extract: extract the secret from the carrier text")
 }
 
 func main() {
-	// hide()
-	extract()
+	subCMD := map[string]func(){
+		"hide":    hide,
+		"extract": extract,
+		"help":    help,
+	}
+	if len(os.Args) < 2 {
+		help()
+	} else if f, ok := subCMD[os.Args[1]]; ok {
+		f()
+	} else {
+		help()
+	}
 }
