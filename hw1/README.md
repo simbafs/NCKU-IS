@@ -16,39 +16,37 @@ NCKU Information Security HW1
 ## 隱藏
 ```
 $ go run . hide > t
-Enter what you want to hide, only ascii availabe: ncku infor
-mation security
-Enter the carrier text: sdf jdfk fsdkl ruei cnxzm
+Enter what you want to hide, only ascii availabe: ncku information security
+Enter the carrier text: this is a message that may repeat many times
 ```
 ## 取出
 ```
 $ cat t | go run . extract
-ncku information security%
+ncku information security%                                                      
 ```
 
 ## t 內容
 ```
-00000000: 7364 66e2 8084 6a64 666b e281 9f66 7364  sdf...jdfk...fsd
-00000010: 6b6c e280 8472 7565 69e2 8081 636e 787a  kl...ruei...cnxz
-00000020: 6de2 8084 7364 66e2 8089 6a64 666b e280  m...sdf...jdfk..
-00000030: 8566 7364 6b6c e280 8372 7565 69e2 8080  .fsdkl...ruei...
-00000040: 636e 787a 6d20 7364 66e2 8084 6a64 666b  cnxzm sdf...jdfk
-00000050: e280 8766 7364 6b6c e280 8472 7565 69e2  ...fsdkl...ruei.
-00000060: 819f 636e 787a 6de2 8084 7364 66e2 8084  ..cnxzm...sdf...
-00000070: 6a64 666b e280 8466 7364 6b6c e380 8072  jdfk...fsdkl...r
-00000080: 7565 69e2 8085 636e 787a 6de2 8080 7364  uei...cnxzm...sd
-00000090: 66e2 8084 6a64 666b e280 af66 7364 6b6c  f...jdfk...fsdkl
-000000a0: e280 8472 7565 69c2 a063 6e78 7a6d e280  ...ruei..cnxzm..
-000000b0: 8573 6466 e280 826a 6466 6be2 8084 6673  .sdf...jdfk...fs
-000000c0: 646b 6ce2 8087 7275 6569 e280 8463 6e78  dkl...ruei...cnx
-000000d0: 7a6d e380 8073 6466 e280 846a 6466 6be2  zm...sdf...jdfk.
-000000e0: 819f 6673 646b 6ce2 8080 7275 6569 2063  ..fsdkl...ruei c
-000000f0: 6e78 7a6d e280 8573 6466 e280 816a 6466  nxzm...sdf...jdf
-00000100: 6be2 8084 6673 646b 6ce2 8083 7275 6569  k...fsdkl...ruei
-00000110: e280 8463 6e78 7a6d e280 8173 6466 e280  ...cnxzm...sdf..
-00000120: 856a 6466 6be2 8083 6673 646b 6ce2 8085  .jdfk...fsdkl...
-00000130: 7275 6569 e280 8063 6e78 7a6d e280 8473  ruei...cnxzm...s
-00000140: 6466 e280 876a 6466 6be2 8085 6673 646b  df...jdfk...fsdk
-00000150: 6ce2 8082 7275 6569 e280 8563 6e78 7a6d  l...ruei...cnxzm
-00000160: e280 8773 6466 0a                        ...sdf.
+00000000: 7468 6973 e280 8469 73e2 819f 61e2 8084  this...is...a...
+00000010: 6d65 7373 6167 65e2 8081 7468 6174 e280  message...that..
+00000020: 846d 6179 e280 8972 6570 6561 74e2 8085  .may...repeat...
+00000030: 6d61 6e79 e280 8374 696d 6573 e280 8074  many...times...t
+00000040: 6869 7320 6973 e280 8461 e280 876d 6573  his is...a...mes
+00000050: 7361 6765 e280 8474 6861 74e2 819f 6d61  sage...that...ma
+00000060: 79e2 8084 7265 7065 6174 e280 846d 616e  y...repeat...man
+00000070: 79e2 8084 7469 6d65 73e3 8080 7468 6973  y...times...this
+00000080: e280 8569 73e2 8080 61e2 8084 6d65 7373  ...is...a...mess
+00000090: 6167 65e2 80af 7468 6174 e280 846d 6179  age...that...may
+000000a0: c2a0 7265 7065 6174 e280 856d 616e 79e2  ..repeat...many.
+000000b0: 8082 7469 6d65 73e2 8084 7468 6973 e280  ..times...this..
+000000c0: 8769 73e2 8084 61e3 8080 6d65 7373 6167  .is...a...messag
+000000d0: 65e2 8084 7468 6174 e281 9f6d 6179 e280  e...that...may..
+000000e0: 8072 6570 6561 7420 6d61 6e79 e280 8574  .repeat many...t
+000000f0: 696d 6573 e280 8174 6869 73e2 8084 6973  imes...this...is
+00000100: e280 8361 e280 846d 6573 7361 6765 e280  ...a...message..
+00000110: 8174 6861 74e2 8085 6d61 79e2 8083 7265  .that...may...re
+00000120: 7065 6174 e280 856d 616e 79e2 8080 7469  peat...many...ti
+00000130: 6d65 73e2 8084 7468 6973 e280 8769 73e2  mes...this...is.
+00000140: 8085 61e2 8082 6d65 7373 6167 65e2 8085  ..a...message...
+00000150: 7468 6174 e280 876d 6179 0a              that...may.
 ```
