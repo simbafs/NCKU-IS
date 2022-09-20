@@ -1,5 +1,6 @@
 # NCKU-IS-HW2
 NCKU Information Security HW2
+[pdf](./out.pdf)
 
 # 原理
 這是一個對稱式金鑰加密，金鑰為六個整數
