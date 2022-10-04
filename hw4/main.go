@@ -34,6 +34,7 @@ func resolve(from, to rune, add func(int) error, ptf, keyf *os.File) {
 					if pt[:2] == prefix {
 						fmt.Fprintln(ptf, index, Unpadding(pt))
 						fmt.Fprintln(keyf, index, key)
+						index++
 					}
 				}
 			}
