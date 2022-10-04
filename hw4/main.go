@@ -1,62 +1,52 @@
 package main
 
+import (
+	"fmt"
+	"os"
+
+	"github.com/schollz/progressbar/v3"
+)
+
 // reference: https://golangdocs.com/aes-encryption-decryption-in-golang
 
-import (
-	"crypto/aes"
-	"encoding/base64"
-	"fmt"
-)
-
 const (
-	key    = "123456789"
-	secret = "security"
-	BS     = 16
+	ct     = "Wj3RQTGXWvIeIu5nEt2qYuYbHRhoNtJawk07R0oZWnI="
+	bs     = 16
+	prefix = "Na"
+	max    = 128
+	fo     = os.O_RDWR | os.O_CREATE | os.O_TRUNC
 )
 
-func Zeropadding(s string) []byte {
-	S := []byte(s)
-	for len(S)%BS != 0 {
-		S = append(S, '\000')
+func genKey(a, b, c, d rune) []rune {
+	return []rune(fmt.Sprintf("Hj%cN)%ctgZ%c9wrc%cm", a, b, c, d))
+}
+
+func resolve(from, to rune, add func(int) error, ptf, keyf *os.File) {
+	index := 0
+	for a := from; a < to; a++ {
+		for b := rune(0); b < max; b++ {
+			for c := rune(0); c < max; c++ {
+				for d := rune(0); d < max; d++ {
+					add(1)
+					key := genKey(a, b, c, d)
+					// fmt.Println([]byte(string(key)))
+					pt := DecryptAES([]byte(string(key)), ct)
+					if pt[:2] == prefix {
+						fmt.Fprintln(ptf, index, Unpadding(pt))
+						fmt.Fprintln(keyf, index, key)
+					}
+				}
+			}
+		}
 	}
-	return S
-}
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func EncryptAES(key []byte, plaintext []byte) string {
-	// create cipher
-	c, err := aes.NewCipher(key)
-	CheckError(err)
-
-	// allocate space for ciphered data
-	out := make([]byte, len(plaintext))
-
-	// encrypt
-	c.Encrypt(out, []byte(plaintext))
-	// return hex string
-	return base64.StdEncoding.EncodeToString(out)
-}
-
-func DecryptAES(key []byte, ct string) string {
-	ciphertext, _ := base64.StdEncoding.DecodeString(ct)
-
-	c, err := aes.NewCipher(key)
-	CheckError(err)
-
-	pt := make([]byte, len(ciphertext))
-	c.Decrypt(pt, ciphertext)
-
-	return string(pt[:])
 }
 
 func main() {
-	c := EncryptAES(Zeropadding(key), Zeropadding(secret))
-	fmt.Println(c)
-	p := DecryptAES(Zeropadding(key), c)
-	fmt.Println(p)
+	bar := progressbar.Default(max * max * max * max)
+	ptf, err := os.OpenFile("plaintext", fo, 0644)
+	CheckError(err)
+	keyf, err := os.OpenFile("key", fo, 0644)
+	CheckError(err)
+
+	resolve(rune(0), rune(max), bar.Add, ptf, keyf)
 }
