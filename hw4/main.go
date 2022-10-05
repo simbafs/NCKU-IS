@@ -7,16 +7,20 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-// reference: https://golangdocs.com/aes-encryption-decryption-in-golang
+// reference:
+// https://golangdocs.com/aes-encryption-decryption-in-golang
+// https://blog.clarence.tw/2020/12/28/golang_implements_aes_ecb_and_pkcs7_pkgs5/
 
 const (
-	ct     = "Wj3RQTGXWvIeIu5nEt2qYuYbHRhoNtJawk07R0oZWnI="
-	bs     = 16
-	prefix = "Na"
-	max    = 128
-	fo     = os.O_RDWR | os.O_CREATE | os.O_TRUNC
+	ct        = "Wj3RQTGXWvIeIu5nEt2qYuYbHRhoNtJawk07R0oZWnI=" // ciphertext
+	bs        = 16                                             // blocksize
+	prefix    = "Na"                                           // prefix of plaintext
+	max       = 128                                            // max rune to try in key
+	fo        = os.O_RDWR | os.O_CREATE | os.O_TRUNC           // file option be used what open 'plaintext', 'key' file
+	printable = true                                           // if printable is true, plaintext will be print only if all of it is printable
 )
 
+// modified this
 func genKey(a, b, c, d rune) []rune {
 	return []rune(fmt.Sprintf("Hj%cN)%ctgZ%c9wrc%cm", a, b, c, d))
 }
@@ -29,10 +33,9 @@ func resolve(from, to rune, add func(int) error, ptf, keyf *os.File) {
 				for d := rune(0); d < max; d++ {
 					add(1)
 					key := genKey(a, b, c, d)
-					// fmt.Println([]byte(string(key)))
-					pt := DecryptAES([]byte(string(key)), ct)
-					if pt[:2] == prefix {
-						fmt.Fprintln(ptf, index, Unpadding(pt))
+					pt := Unpadding(DecryptAES([]byte(string(key)), []byte(ct)))
+					if pt[:2] == prefix && (!printable || AllIsPrint(pt)) {
+						fmt.Fprintln(ptf, index, pt)
 						fmt.Fprintln(keyf, index, key)
 						index++
 					}

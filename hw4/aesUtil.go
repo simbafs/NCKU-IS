@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"encoding/base64"
 	"strings"
+	"unicode"
 )
 
 func Zeropadding(s string) []byte {
@@ -24,29 +25,43 @@ func CheckError(err error) {
 	}
 }
 
+func AllIsPrint(s string) bool {
+	for _, c := range s {
+		if !unicode.IsPrint(c) {
+			return false
+		}
+	}
+	return true
+}
+
 // unused
-func EncryptAES(key []byte, plaintext []byte) string {
+func EncryptAES(key, plaintext []byte) string {
 	// create cipher
-	c, err := aes.NewCipher(key)
+	cipher, err := aes.NewCipher(key)
 	CheckError(err)
 
 	// allocate space for ciphered data
-	out := make([]byte, len(plaintext))
+	ciphertext := make([]byte, len(plaintext))
 
 	// encrypt
-	c.Encrypt(out, []byte(plaintext))
+	for start, end := 0, bs; start < len(plaintext); start, end = start+bs, end+bs {
+		cipher.Encrypt(ciphertext[start:end], plaintext[start:end])
+	}
 	// return hex string
-	return base64.StdEncoding.EncodeToString(out)
+	return base64.StdEncoding.EncodeToString(ciphertext)
 }
 
-func DecryptAES(key []byte, ct string) string {
-	ciphertext, _ := base64.StdEncoding.DecodeString(ct)
+func DecryptAES(key, ct []byte) string {
+	ciphertext, err := base64.StdEncoding.DecodeString(string(ct))
+	CheckError(err)
 
 	c, err := aes.NewCipher(key)
 	CheckError(err)
 
-	pt := make([]byte, len(ciphertext))
-	c.Decrypt(pt, ciphertext)
+	plaintext := make([]byte, len(ciphertext))
+	for start, end := 0, bs; start < len(ciphertext); start, end = start+bs, end+bs {
+		c.Decrypt(plaintext[start:end], ciphertext[start:end])
+	}
 
-	return string(pt[:])
+	return string(plaintext)
 }
