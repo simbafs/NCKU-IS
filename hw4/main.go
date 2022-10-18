@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/schollz/progressbar/v3"
 )
@@ -25,8 +26,9 @@ func genKey(a, b, c, d rune) []rune {
 	return []rune(fmt.Sprintf("Hj%cN)%ctgZ%c9wrc%cm", a, b, c, d))
 }
 
-func resolve(from, to rune, add func(int) error, ptf, keyf *os.File) {
+func resolve(wg *sync.WaitGroup, from, to rune, add func(int) error, ptf, keyf *os.File) {
 	index := 0
+	fmt.Printf("%d ~ %d\n", from, to)
 	for a := from; a < to; a++ {
 		for b := rune(0); b < max; b++ {
 			for c := rune(0); c < max; c++ {
@@ -43,6 +45,9 @@ func resolve(from, to rune, add func(int) error, ptf, keyf *os.File) {
 			}
 		}
 	}
+
+	fmt.Printf("%d ~ %d done\n", from, to)
+	wg.Done()
 }
 
 func main() {
@@ -52,5 +57,19 @@ func main() {
 	keyf, err := os.OpenFile("key", fo, 0644)
 	CheckError(err)
 
-	resolve(rune(0), rune(max), bar.Add, ptf, keyf)
+	n := 4
+	d := max / n
+	wg := &sync.WaitGroup{}
+	wg.Add(n)
+
+	for i := 0; i < n-1; i++ {
+		go resolve(wg, rune(i*d), rune(i*d+d), bar.Add, ptf, keyf)
+	}
+	go resolve(wg, rune(max-d), rune(max), bar.Add, ptf, keyf)
+
+	// goroutune := make([]byte, 100000)
+	// k := runtime.Stack(goroutune, true)
+	// fmt.Println(k, string(goroutune))
+
+	wg.Wait()
 }
